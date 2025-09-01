@@ -1,0 +1,21 @@
+{
+  "name": "arman-journal",
+  "version": "1.0.0",
+  "description": "Personal journal with dark blue aesthetic and GitHub integration",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "build": "npm run minify && npm run optimize",
+    "minify": "html-minifier --remove-comments --collapse-whitespace --minify-css --minify-js index.html -o dist/index.html",
+    "optimize": "mkdir -p dist && cp -r data dist/",
+    "deploy": "npm run build && git add . && git commit -m 'Deploy optimized journal' && git push origin main",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "html-minifier": "^4.0.0"
+  },
+  "keywords": ["journal", "personal", "github-pages", "responsive"],
+  "author": "Arman Khan",
+  "license": "MIT"
+}
+

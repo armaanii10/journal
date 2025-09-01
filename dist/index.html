@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arman's Journal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Courier Prime', 'Courier New', monospace;
+      background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 50%, #1e3a8a 100%);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      color: #333;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      color: white;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+    
+    .journal-grid {
+      display: grid;
+      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    }
+    
+    .journal-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: visible;
+      user-select: none;
+    }
+    
+    .journal-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .journal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #2563eb, #1d4ed8);
+    }
+    
+    .card-header {
+      margin-bottom: 1rem;
+    }
+    
+    .card-date {
+      font-size: 0.875rem;
+      color: #2563eb;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2d3748;
+      line-height: 1.3;
+    }
+    
+    .card-preview {
+      color: #718096;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .card-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease-out, opacity 0.3s ease-out;
+      opacity: 0;
+      color: #4a5568;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+      scroll-behavior: smooth;
+    }
+    
+    .card-content.expanded {
+      max-height: 2000px;
+      opacity: 1;
+      transition: max-height 0.5s ease-in, opacity 0.4s ease-in;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+    
+    /* Custom scrollbar for card content */
+    .card-content.expanded::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .card-content.expanded::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 3px;
+    }
+    
+    .card-content.expanded::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    
+    .card-content.expanded::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Visual debugging - add border colors when expanded */
+    .journal-card.expanded {
+      border: 2px solid #3b82f6;
+    }
+    
+    .card-content.expanded {
+      background: rgba(59, 130, 246, 0.05);
+    }
+    
+    .comment-section {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    
+    .comment-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      margin-bottom: 0.5rem;
+    }
+    
+    .identity-input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s ease;
+      background: #fafafa;
+    }
+    
+    .identity-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      background: white;
+    }
+    
+    .identity-label {
+      font-size: 0.8rem;
+      color: #1e40af;
+      margin-bottom: 0.4rem;
+      font-style: italic;
+    }
+    
+    .comment-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      resize: vertical;
+      min-height: 60px;
+      font-family: inherit;
+      transition: border-color 0.2s ease;
+    }
+    
+    .comment-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .comment-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .comment-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .save-btn {
+      background: #1d4ed8;
+      color: white;
+    }
+    
+    .save-btn:hover {
+      background: #1e3a8a;
+    }
+    
+    .clear-btn {
+      background: #f7fafc;
+      color: #718096;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .clear-btn:hover {
+      background: #edf2f7;
+    }
+    
+    .saved-comments {
+      margin-top: 1rem;
+    }
+    
+    .comment-item {
+      background: #f7fafc;
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: #4a5568;
+      border-left: 3px solid #3b82f6;
+    }
+    
+    .comment-timestamp {
+      font-size: 0.75rem;
+      color: #a0aec0;
+      margin-top: 0.25rem;
+    }
+    
+    .comment-author {
+      font-size: 0.8rem;
+      color: #1e40af;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      border-bottom: 1px solid rgba(30, 64, 175, 0.2);
+      padding-bottom: 0.25rem;
+    }
+    
+    .comment-author::before {
+      content: "—";
+      margin-right: 0.25rem;
+      color: #a0aec0;
+    }
+    
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    
+    .comment-text {
+      flex: 1;
+      margin-right: 0.5rem;
+    }
+    
+    .delete-comment-btn {
+      background: none;
+      border: none;
+      color: #e53e3e;
+      cursor: pointer;
+      font-size: 0.75rem;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    
+    .delete-comment-btn:hover {
+      background: #fed7d7;
+      color: #c53030;
+    }
+    
+    .delete-comment-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .expand-icon {
+      position: absolute;
+      bottom: 1rem;
+      right: 1.5rem;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    .expand-icon::after {
+      content: '↓';
+      color: white;
+      font-size: 14px;
+      transition: transform 0.3s ease;
+    }
+    
+    .journal-card.expanded .expand-icon::after {
+      transform: rotate(180deg);
+    }
+    
+    .add-entry-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(29, 78, 216, 0.3);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .add-entry-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 35px rgba(37, 99, 235, 0.4);
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+    
+    .modal-overlay.show {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      transform: translateY(-20px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    /* Custom scrollbar for modal */
+    .modal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .modal-content::-webkit-scrollbar-track {
+      background: #f8fafc;
+      border-radius: 4px;
+    }
+    
+    .modal-content::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    .modal-overlay.show .modal-content {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #2563eb;
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e3a8a;
+      margin: 0;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #718096;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    
+    .modal-close:hover {
+      background: #f7fafc;
+      color: #4a5568;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .form-textarea {
+      min-height: 200px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .modal-btn {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+      background: #1d4ed8;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #1e3a8a;
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background: #f7fafc;
+      color: #718096;
+      border: 2px solid #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+      background: #edf2f7;
+      color: #4a5568;
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+      
+      .container {
+        max-width: 100%;
+      }
+      
+      .header {
+        margin-bottom: 2rem;
+      }
+      
+      .header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .header p {
+        font-size: 1rem;
+      }
+      
+      .journal-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .journal-card {
+        padding: 1.5rem;
+        border-radius: 16px;
+      }
+      
+      .card-date {
+        font-size: 0.8rem;
+      }
+      
+      .card-title {
+        font-size: 1.1rem;
+        line-height: 1.4;
+      }
+      
+      .card-preview {
+        font-size: 0.9rem;
+        -webkit-line-clamp: 2;
+      }
+      
+      .card-content {
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+      
+      .comment-section {
+        margin-top: 1rem;
+        padding-top: 1rem;
+      }
+      
+      .identity-input, .comment-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 0.7rem;
+      }
+      
+      .comment-input {
+        min-height: 80px;
+      }
+      
+      .comment-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .comment-btn {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+      }
+      
+      .comment-item {
+        padding: 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .comment-author {
+        font-size: 0.85rem;
+      }
+      
+      .comment-timestamp {
+        font-size: 0.7rem;
+      }
+      
+      .delete-comment-btn {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+      }
+      
+      .expand-icon {
+        width: 20px;
+        height: 20px;
+        bottom: 0.75rem;
+        right: 1rem;
+      }
+      
+      .add-entry-btn {
+        width: 50px;
+        height: 50px;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        font-size: 20px;
+      }
+      
+      .modal-content {
+        padding: 1.5rem;
+        border-radius: 16px;
+      }
+      
+      .modal-title {
+        font-size: 1.25rem;
+      }
+      
+      .form-input {
+        font-size: 16px; /* Prevents iOS zoom */
+      }
+      
+      .modal-actions {
+        flex-direction: column;
+      }
+      
+      /* Improve scrolling on mobile */
+      body {
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      .card-content.expanded {
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      .modal-content {
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 0.5rem 0.25rem;
+      }
+      
+      .header h1 {
+        font-size: 1.6rem;
+      }
+      
+      .journal-card {
+        padding: 1.25rem;
+        border-radius: 12px;
+      }
+      
+      .card-title {
+        font-size: 1rem;
+      }
+      
+      .card-content {
+        font-size: 0.85rem;
+      }
+      
+      .comment-item {
+        padding: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Arman's Journal</h1>
+      <p>A quiet corner for wandering thoughts</p>
+    </div>
+    
+    <div class="journal-grid">
+      <!-- Entry 1 -->
+      <div class="journal-card" id="card-1">
+        <div class="card-header">
+          <div class="card-date">June 25, 2025</div>
+          <div class="card-title">Welcome Note</div>
+        </div>
+        <div class="card-preview">
+          Hello, I am Arman—welcome to my journal. These pages are nothing grand, just a quiet corner where I capture the thoughts that tend to slip away...
+        </div>
+        <div class="card-content" id="content-1">
+          <p>Hello, I am Arman—welcome to my journal.</p>
+          
+          <p>These pages are nothing grand, just a quiet corner where I capture the thoughts that tend to slip away on evenings like this one. I've found that ideas often arrive unannounced, yet vanish just as quickly if left unattended. So here, I'll try to give them a home.</p>
+          
+          <p>Once upon a time, reading and writing were my daily companions, but somewhere along the way, life grew louder and I drifted from them. This journal is my attempt to return—to slow down, to think, to read, and to write again.</p>
+          
+          <p>Nothing polished, nothing perfect—simply a record of where my mind wanders.</p>
+          
+          <div class="comment-section">
+            <div class="comment-label">Share your thoughts:</div>
+            <div class="identity-label">With love from:</div>
+            <input type="text" class="identity-input" id="identity-input-1" placeholder="Your name, relationship, or how Arman knows you...">
+            <textarea class="comment-input" id="comment-input-1" placeholder="What thoughts does this entry spark to you?"></textarea>
+            <div class="comment-actions">
+              <button class="comment-btn save-btn" onclick="saveComment(1)">Save</button>
+              <button class="comment-btn clear-btn" onclick="clearComment(1)">Clear</button>
+            </div>
+            <div class="saved-comments" id="saved-comments-1"></div>
+          </div>
+        </div>
+        <div class="expand-icon"></div>
+      </div>
+      
+      <!-- Entry 2 -->
+      <div class="journal-card" id="card-2">
+        <div class="card-header">
+          <div class="card-date">August 31, 2025</div>
+          <div class="card-title">New Chapter - Hella Learning!</div>
+        </div>
+        <div class="card-preview">
+          In a new city, a new chapter. Life feels a little different this time. A lot of responsibility and a lot of change...
+        </div>
+        <div class="card-content" id="content-2">
+          <p>In a new city, a new chapter. Life feels a little different this time. A lot of responsibility and a lot of change.</p>
+          
+          <p>Some of the roads that I am navigating through feels a bit unchartered and so new.</p>
+          
+          <p>The 9-5 grind has made me learn a lot. It's made me realise a lot of new technologies, industry trends and ways to get ahead. Software Engineering is insanely challenging. I have to find a way to make myself go through the pressure, not give in to it.</p>
+          
+          <p>I know for a fact there is a lot of strengths that I have but if I can master the technical skills, I know I can get ahead very well. The initial learning curve is pretty steep but I have to make sure that I push through. Learning new frameworks, solutions architecture and how it actually works in the industry is totally different compared to learning in college and building my own projects.</p>
+          
+          <p><strong>The learning plan is to invest an hour of studying every day after work for 5 days a week.</strong></p>
+          
+          <ul>
+            <li>6:30pm - 7:30pm is study hours regardless of how I feel.</li>
+            <li>It's real important that I go deep in the concepts, fully understanding what I'm working on. Not just completing the Jiras.</li>
+            <li>I have also started vibe coding, it's fun and really helps me understand the code better. So every weekend, I will try to build something meaningful. This week's project is what you're reading (wink)</li>
+          </ul>
+          
+          <p>Lastly, The plan is to invest at least 10 minutes of reading every night before bed.</p>
+          
+          <p>Currently, reading the "Psychology of money" by Morgan Housel. The biggest takeaway is you don't need a reason to save money, so save it.</p>
+          
+          <p>Thank you for reading. Just a dumping zone, but let me know what you think!</p>
+          
+          <div class="comment-section">
+            <div class="comment-label">Share your thoughts:</div>
+            <div class="identity-label">With love from:</div>
+            <input type="text" class="identity-input" id="identity-input-2" placeholder="Your name, relationship, or how Arman knows you...">
+            <textarea class="comment-input" id="comment-input-2" placeholder="How does this learning journey resonate with you? Share your thoughts..."></textarea>
+            <div class="comment-actions">
+              <button class="comment-btn save-btn" onclick="saveComment(2)">Save</button>
+              <button class="comment-btn clear-btn" onclick="clearComment(2)">Clear</button>
+            </div>
+            <div class="saved-comments" id="saved-comments-2"></div>
+          </div>
+        </div>
+        <div class="expand-icon"></div>
+      </div>
+    </div>
+    
+    <button class="add-entry-btn" onclick="openNewEntryModal()">+</button>
+  </div>
+
+  <!-- New Entry Modal -->
+  <div class="modal-overlay" id="newEntryModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Add New Journal Entry</h2>
+        <button class="modal-close" onclick="closeNewEntryModal()">✕</button>
+      </div>
+      
+      <form id="newEntryForm">
+        <div class="form-group">
+          <label class="form-label" for="entryDate">Date</label>
+          <input type="date" class="form-input" id="entryDate" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="entryHeadline">Headline</label>
+          <input type="text" class="form-input" id="entryHeadline" placeholder="What's this entry about?" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="entryContent">Your Thoughts</label>
+          <textarea class="form-input form-textarea" id="entryContent" placeholder="Share your thoughts, experiences, reflections..." required></textarea>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="modal-btn btn-secondary" onclick="closeNewEntryModal()">Cancel</button>
+          <button type="submit" class="modal-btn btn-primary">Save Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+
+    
+    function openNewEntryModal() {
+      const modal = document.getElementById('newEntryModal');
+      const dateInput = document.getElementById('entryDate');
+      
+      // Set today's date as default
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.value = today;
+      
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+    
+    function closeNewEntryModal() {
+      const modal = document.getElementById('newEntryModal');
+      modal.classList.remove('show');
+      document.body.style.overflow = ''; // Restore scrolling
+      
+      // Clear form
+      document.getElementById('newEntryForm').reset();
+    }
+    
+    async function saveNewEntry(date, headline, content) {
+      // Create new entry
+      const newEntry = {
+        id: Date.now(), // Simple ID based on timestamp
+        date: date,
+        headline: headline,
+        content: content,
+        timestamp: new Date().toISOString()
+      };
+      
+      try {
+        // Try to save to GitHub first
+        await saveToGitHub(newEntry);
+        console.log('Entry saved to GitHub:', newEntry);
+      } catch (error) {
+        console.error('Failed to save to GitHub, saving locally:', error);
+        // Fallback to localStorage if GitHub fails
+        saveEntryLocally(newEntry);
+      }
+      
+      // Refresh the display
+      renderJournalEntries();
+      
+      // Close modal
+      closeNewEntryModal();
+    }
+    
+    function saveEntryLocally(newEntry) {
+      const entries = getJournalEntries();
+      entries.unshift(newEntry);
+      localStorage.setItem('journal-entries', JSON.stringify(entries));
+    }
+    
+    async function saveToGitHub(newEntry) {
+      // For private repos, create a token with 'repo' scope
+      // This token allows read/write access to your private repository
+      // Get token from localStorage or prompt user
+      let GITHUB_TOKEN = localStorage.getItem('github-token');
+      if (!GITHUB_TOKEN) {
+        GITHUB_TOKEN = prompt('Enter your GitHub token (this will be stored locally in your browser):');
+        if (GITHUB_TOKEN) {
+          localStorage.setItem('github-token', GITHUB_TOKEN);
+        }
+      }
+      const REPO_OWNER = 'armaanii10';
+      const REPO_NAME = 'journal'; // Your private repo name
+      const FILE_PATH = 'data/entries.json';
+      
+      // Get current file content
+      let currentEntries = [];
+      let currentSha = null;
+      
+      try {
+        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+          headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github.v3+json',
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          currentSha = data.sha;
+          const content = atob(data.content); // Decode base64
+          currentEntries = JSON.parse(content);
+        }
+      } catch (error) {
+        console.log('File does not exist, creating new one');
+      }
+      
+      // Add new entry
+      currentEntries.unshift(newEntry);
+      
+      // Save back to GitHub
+      const updatedContent = btoa(JSON.stringify(currentEntries, null, 2)); // Encode to base64
+      
+      const updateResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Add new journal entry: ${newEntry.headline}`,
+          content: updatedContent,
+          sha: currentSha, // Required for updates
+        }),
+      });
+      
+      if (!updateResponse.ok) {
+        throw new Error(`GitHub API error: ${updateResponse.status}`);
+      }
+    }
+    
+    async function getJournalEntries() {
+      try {
+        // Try to load from GitHub first
+        const githubEntries = await loadFromGitHub();
+        if (githubEntries && githubEntries.length > 0) {
+          return githubEntries;
+        }
+      } catch (error) {
+        console.log('Could not load from GitHub, using local storage:', error);
+      }
+      
+      // Fallback to localStorage
+      const stored = localStorage.getItem('journal-entries');
+      return stored ? JSON.parse(stored) : [];
+    }
+    
+    async function loadFromGitHub() {
+      // Get token from localStorage or prompt user
+      let GITHUB_TOKEN = localStorage.getItem('github-token');
+      if (!GITHUB_TOKEN) {
+        GITHUB_TOKEN = prompt('Enter your GitHub token (this will be stored locally in your browser):');
+        if (GITHUB_TOKEN) {
+          localStorage.setItem('github-token', GITHUB_TOKEN);
+        }
+      }
+      const REPO_OWNER = 'armaanii10';
+      const REPO_NAME = 'journal'; // Your private repo name
+      const FILE_PATH = 'data/entries.json';
+      
+      const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+        headers: {
+          'Authorization': `token ${GITHUB_TOKEN}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const content = atob(data.content); // Decode base64
+      return JSON.parse(content);
+    }
+    
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+    
+    function createEntryCard(entry) {
+      return `
+        <div class="journal-card" id="card-${entry.id}">
+          <div class="card-header">
+            <div class="card-date">${formatDate(entry.date)}</div>
+            <div class="card-title">${entry.headline}</div>
+          </div>
+          <div class="card-preview">
+            ${entry.content.substring(0, 120)}${entry.content.length > 120 ? '...' : ''}
+          </div>
+          <div class="card-content" id="content-${entry.id}">
+            ${entry.content.split('\n').map(paragraph => paragraph.trim() ? `<p>${paragraph}</p>` : '').join('')}
+            
+            <div class="comment-section">
+              <div class="comment-label">Share your thoughts:</div>
+              <div class="identity-label">With love from:</div>
+              <input type="text" class="identity-input" id="identity-input-${entry.id}" placeholder="Your name, relationship, or how Arman knows you...">
+              <textarea class="comment-input" id="comment-input-${entry.id}" placeholder="What thoughts does this entry spark to you?"></textarea>
+              <div class="comment-actions">
+                <button class="comment-btn save-btn" onclick="saveComment(${entry.id})">Save</button>
+                <button class="comment-btn clear-btn" onclick="clearComment(${entry.id})">Clear</button>
+              </div>
+              <div class="saved-comments" id="saved-comments-${entry.id}"></div>
+            </div>
+          </div>
+          <div class="expand-icon"></div>
+        </div>
+      `;
+    }
+    
+    async function renderJournalEntries() {
+      const entries = await getJournalEntries();
+      const grid = document.querySelector('.journal-grid');
+      
+      // Get existing static cards (the original 2 cards)
+      const staticCards = grid.querySelectorAll('#card-1, #card-2');
+      let staticHTML = '';
+      staticCards.forEach(card => {
+        staticHTML += card.outerHTML;
+      });
+      
+      // Generate dynamic entry cards (only new entries)
+      const dynamicHTML = entries.map(createEntryCard).join('');
+      
+      // Only update if there are new entries to avoid unnecessary re-renders
+      const currentDynamicCards = grid.querySelectorAll('.journal-card:not(#card-1):not(#card-2)');
+      
+      if (entries.length !== currentDynamicCards.length) {
+        // Combine static and dynamic
+        grid.innerHTML = staticHTML + dynamicHTML;
+        
+        // Re-setup click listeners for all cards
+        setupCardListeners();
+        
+        // Load comments for all entries
+        loadAllComments();
+        entries.forEach(entry => {
+          displayComments(entry.id);
+        });
+      } else {
+        // Just setup listeners for any new cards
+        setupCardListeners();
+      }
+    }
+    
+    // Comment system functions
+    function saveComment(entryId) {
+      const commentInput = document.getElementById(`comment-input-${entryId}`);
+      const identityInput = document.getElementById(`identity-input-${entryId}`);
+      const commentText = commentInput.value.trim();
+      const identity = identityInput.value.trim();
+      
+      if (!commentText) {
+        alert('Please enter a comment before saving.');
+        return;
+      }
+      
+      if (!identity) {
+        alert('Please let Arman know who you are in his world before sharing your thoughts.');
+        return;
+      }
+      
+      // Get existing comments or initialize empty array
+      const comments = getComments(entryId);
+      
+      // Add new comment with identity and timestamp
+      const newComment = {
+        text: commentText,
+        author: identity,
+        timestamp: new Date().toLocaleString()
+      };
+      
+      comments.push(newComment);
+      
+      // Save to localStorage
+      localStorage.setItem(`journal-comments-${entryId}`, JSON.stringify(comments));
+      
+      // Clear inputs
+      commentInput.value = '';
+      identityInput.value = '';
+      
+      // Refresh comments display
+      displayComments(entryId);
+      
+      console.log(`Comment saved for entry ${entryId}:`, newComment);
+    }
+    
+    function clearComment(entryId) {
+      const commentInput = document.getElementById(`comment-input-${entryId}`);
+      const identityInput = document.getElementById(`identity-input-${entryId}`);
+      commentInput.value = '';
+      identityInput.value = '';
+    }
+    
+    function deleteComment(entryId, commentIndex) {
+      // Confirm deletion
+      if (!confirm('Are you sure you want to delete this comment?')) {
+        return;
+      }
+      
+      // Get current comments
+      const comments = getComments(entryId);
+      
+      // Remove the comment at the specified index
+      comments.splice(commentIndex, 1);
+      
+      // Save updated comments back to localStorage
+      localStorage.setItem(`journal-comments-${entryId}`, JSON.stringify(comments));
+      
+      // Refresh the display
+      displayComments(entryId);
+      
+      console.log(`Comment ${commentIndex} deleted from entry ${entryId}`);
+    }
+    
+    function getComments(entryId) {
+      const stored = localStorage.getItem(`journal-comments-${entryId}`);
+      return stored ? JSON.parse(stored) : [];
+    }
+    
+    function displayComments(entryId) {
+      const comments = getComments(entryId);
+      const container = document.getElementById(`saved-comments-${entryId}`);
+      
+      if (comments.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      
+      container.innerHTML = comments.map((comment, index) => `
+        <div class="comment-item">
+          <div class="comment-author">${comment.author || 'Anonymous'}</div>
+          <div class="comment-header">
+            <div class="comment-text">${comment.text}</div>
+            <button class="delete-comment-btn" onclick="deleteComment(${entryId}, ${index})" title="Delete comment">
+              ✕
+            </button>
+          </div>
+          <div class="comment-timestamp">${comment.timestamp}</div>
+        </div>
+      `).join('');
+    }
+    
+    // Load comments when page loads
+    function loadAllComments() {
+      displayComments(1);
+      displayComments(2);
+    }
+    
+    function setupCardListeners() {
+      const cards = document.querySelectorAll('.journal-card');
+      console.log('Setting up card listeners for', cards.length, 'cards');
+      
+      cards.forEach((card, index) => {
+        // Check if listener already exists to avoid duplicates
+        if (card.hasAttribute('data-listener-added')) {
+          return;
+        }
+        
+        // Mark as having listener
+        card.setAttribute('data-listener-added', 'true');
+        
+        card.addEventListener('click', function(e) {
+          // Don't trigger card expansion if clicking on comment section or modal
+          if (e.target.closest('.comment-section') || e.target.closest('.modal-overlay')) {
+            return;
+          }
+          
+          e.preventDefault();
+          e.stopPropagation();
+          
+          console.log(`Card ${index + 1} clicked!`);
+          
+          // Get the specific elements for THIS card only
+          const clickedCard = this;
+          const content = clickedCard.querySelector('.card-content');
+          const isExpanded = clickedCard.classList.contains('expanded');
+          
+          console.log(`Card ${index + 1} current state: ${isExpanded ? 'OPEN' : 'CLOSED'}`);
+          
+          // Toggle THIS card only
+          if (isExpanded) {
+            clickedCard.classList.remove('expanded');
+            content.classList.remove('expanded');
+            console.log(`Card ${index + 1} -> CLOSED`);
+          } else {
+            clickedCard.classList.add('expanded');
+            content.classList.add('expanded');
+            console.log(`Card ${index + 1} -> OPENED`);
+            
+            // Smooth scroll to show the expanded card better
+            setTimeout(() => {
+              const cardRect = clickedCard.getBoundingClientRect();
+              const windowHeight = window.innerHeight;
+              
+              // If card is not fully visible, scroll to it
+              if (cardRect.bottom > windowHeight || cardRect.top < 100) {
+                clickedCard.scrollIntoView({ 
+                  behavior: 'smooth', 
+                  block: 'center',
+                  inline: 'nearest'
+                });
+              }
+            }, 200); // Wait for expansion animation
+          }
+        });
+      });
+    }
+    
+    // Update the existing DOMContentLoaded to include comments
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded, setting up journal functionality');
+      
+      // Setup form submission
+      const newEntryForm = document.getElementById('newEntryForm');
+      newEntryForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const date = document.getElementById('entryDate').value;
+        const headline = document.getElementById('entryHeadline').value.trim();
+        const content = document.getElementById('entryContent').value.trim();
+        
+        if (!date || !headline || !content) {
+          alert('Please fill in all fields.');
+          return;
+        }
+        
+        saveNewEntry(date, headline, content);
+      });
+      
+      // Setup modal close on outside click
+      const modal = document.getElementById('newEntryModal');
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeNewEntryModal();
+        }
+      });
+      
+      // Setup card listeners
+      setupCardListeners();
+      
+      // Load saved comments and entries
+      loadAllComments();
+      renderJournalEntries();
+    });
+  </script>
+</body>
+</html>
