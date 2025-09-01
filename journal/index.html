@@ -884,13 +884,13 @@
     async function saveToGitHub(newEntry) {
       // For private repos, create a token with 'repo' scope
       // This token allows read/write access to your private repository
-      // Get token from localStorage or prompt user
+      // Get token from localStorage - no prompts for better UX
       let GITHUB_TOKEN = localStorage.getItem('github-token');
       if (!GITHUB_TOKEN) {
-        GITHUB_TOKEN = prompt('Enter your GitHub token (this will be stored locally in your browser):');
-        if (GITHUB_TOKEN) {
-          localStorage.setItem('github-token', GITHUB_TOKEN);
-        }
+        console.log('No GitHub token found. Entries will be saved locally only.');
+        // Fall back to local storage without GitHub sync
+        saveEntryLocally(newEntry);
+        return;
       }
       const REPO_OWNER = 'armaanii10';
       const REPO_NAME = 'journal'; // Your private repo name
@@ -960,13 +960,12 @@
     }
     
     async function loadFromGitHub() {
-      // Get token from localStorage or prompt user
+      // Get token from localStorage - no prompts for better UX
       let GITHUB_TOKEN = localStorage.getItem('github-token');
       if (!GITHUB_TOKEN) {
-        GITHUB_TOKEN = prompt('Enter your GitHub token (this will be stored locally in your browser):');
-        if (GITHUB_TOKEN) {
-          localStorage.setItem('github-token', GITHUB_TOKEN);
-        }
+        console.log('No GitHub token found. Loading entries from local storage only.');
+        // Fall back to local storage without GitHub sync
+        return getJournalEntriesLocal();
       }
       const REPO_OWNER = 'armaanii10';
       const REPO_NAME = 'journal'; // Your private repo name
